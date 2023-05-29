@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2023 Search Pioneer - https://www.searchpioneer.com
+// Copyright (C) 2023 Search Pioneer - https://www.searchpioneer.com
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,12 +14,84 @@
 
 
 using Xunit;
+using Flurl.Http;
 
 namespace SearchPioneer.Weaviate.Client.IntegrationTests.Api.Schema;
 
 [Collection("Sequential")]
 public class SchemaTests : TestBase
 {
+	[Fact]
+	// [How to build an Image Search Application with Weaviate](https://weaviate.io/blog/how-to-build-an-image-search-application-with-weaviate) in .NET
+	public void BuildAnImageSearchApplication()
+	{
+		Client.Schema.DeleteAllClasses();
+
+		//var flurlClient = new FlurlClient();
+		//var weaviateClient = new WeaviateClient(new Config("http", "localhost:8080"), flurlClient);
+		var createStatus = Client.Schema.CreateSchemaClassString(DogSchema);
+		Assert.True(createStatus.HttpStatusCode == 200);
+
+		var schema = Client.Schema.GetSchema();
+		Assert.True(schema.HttpStatusCode == 200);
+		Assert.Single(schema.Result.Classes);
+
+		// Convert sample images in C:\UnitySrc\private repos\weaviate-examples\nearest-neighbor-dog-search\flask-app\static\img to base64
+		const string path = @"C:\UnitySrc\private repos\weaviate-examples\nearest-neighbor-dog-search\flask-app\static\img"; // TODO: Iterate over these!!!
+		var filePath = $@"{path}\Australian-Shepherd.jpg";
+		var imageArray = System.IO.File.ReadAllBytes(filePath);
+		var base64ImageRepresentation = Convert.ToBase64String(imageArray);
+
+		var batch = Client.Batch.CreateObjects(new CreateObjectsBatchRequest(
+			new WeaviateObject
+			{
+				Class = "Dog",
+				Properties = new Dictionary<string, object>
+				{
+					{ "breed", "Australian Shepherd" },
+					{ "image", base64ImageRepresentation },
+					{ "filepath", filePath }
+				}
+			})
+			{
+				ConsistencyLevel = ConsistencyLevel.Quorum
+			});
+		Assert.True(batch.HttpStatusCode == 200);
+	}
+
+	private const string DogSchema = @"
+        {
+           ""class"": ""Dog"",
+           ""description"": ""Images of different dogs"",
+           ""moduleConfig"": {
+               ""img2vec-neural"": {
+                   ""imageFields"": [
+                       ""image""
+                   ]
+               }
+           },
+           ""vectorIndexType"": ""hnsw"",
+           ""vectorizer"": ""img2vec-neural"",
+           ""properties"": [
+               {
+                   ""name"": ""breed"",
+                   ""dataType"": [""string""],
+                   ""description"": ""name of dog breed""
+               },
+               {
+                   ""name"": ""image"",
+                   ""dataType"": [""blob""],
+                   ""description"": ""image""
+               },
+               {
+                   ""name"": ""filepath"",
+                   ""dataType"":[""string""],
+                   ""description"": ""filepath of the images""
+               }
+           ]
+       }
+";
+
 	[Fact]
 	public void CreateBandClass()
 	{

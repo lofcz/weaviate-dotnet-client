@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2023 Search Pioneer - https://www.searchpioneer.com
+// Copyright (C) 2023 Search Pioneer - https://www.searchpioneer.com
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,6 +44,9 @@ public class SchemaApi
 
     public ApiResponse<WeaviateClass> CreateSchemaClass(CreateClassRequest request)
 	    => _transport.PostAsync<WeaviateClass, WeaviateClass>("/schema", request).GetAwaiter().GetResult();
+
+    public ApiResponse<WeaviateClass> CreateSchemaClassString(string request)
+	    => _transport.PostStringAsync<string, WeaviateClass>("/schema", request).GetAwaiter().GetResult();
 
     public async Task<ApiResponse<WeaviateClass>> CreateSchemaClassAsync(CreateClassRequest request, CancellationToken cancellationToken = default)
 	    => await _transport.PostAsync<WeaviateClass, WeaviateClass>("/schema", request, cancellationToken).ConfigureAwait(false);

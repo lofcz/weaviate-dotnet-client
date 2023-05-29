@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2023 Search Pioneer - https://www.searchpioneer.com
+// Copyright (C) 2023 Search Pioneer - https://www.searchpioneer.com
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public abstract class TestBase
 	protected static readonly string PIZZA_DOENER_ID = "d2b393ff-4b26-48c7-b554-218d970a9e17";
 	protected static readonly string SOUP_CHICKENSOUP_ID = "8c156d37-81aa-4ce9-a811-621e2702b825";
 	protected static readonly string SOUP_BEAUTIFUL_ID = "27351361-2898-4d1a-aad7-1ca48253eb0b";
-	protected readonly WeaviateClient Client = new(new("http", "localhost:8080", "my-secret-key"), new FlurlClient());
+	protected readonly WeaviateClient Client = new(new("http", "localhost:8080"), new FlurlClient());
 
 	// Uncomment to try alternate seperators
 	// protected TestBase() =>

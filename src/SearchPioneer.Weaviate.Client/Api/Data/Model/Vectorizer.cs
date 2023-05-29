@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2023 Search Pioneer - https://www.searchpioneer.com
+// Copyright (C) 2023 Search Pioneer - https://www.searchpioneer.com
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,5 +18,6 @@ namespace SearchPioneer.Weaviate.Client;
 public static class Vectorizer
 {
     public static string Text2VecContextionary = "text2vec-contextionary";
+    public static string Img2VecNeural = "img2vec-neural";
     public static string None = "none";
 }

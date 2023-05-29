@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2023 Search Pioneer - https://www.searchpioneer.com
+// Copyright (C) 2023 Search Pioneer - https://www.searchpioneer.com
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ namespace SearchPioneer.Weaviate.Client;
 /// </summary>
 public class WeaviateClient
 {
-	private const string ClientVersion = "1.18.0";
+	private const string ClientVersion = "1.18.4";
 	private static readonly Config DefaultConfig = new("http", "localhost:8080");
 
 	private readonly DbVersionSupport _dbVersionSupport;

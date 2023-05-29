@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2023 Search Pioneer - https://www.searchpioneer.com
+// Copyright (C) 2023 Search Pioneer - https://www.searchpioneer.com
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -133,6 +133,14 @@ public class Transport
     {
 	    var result = GetResult<TRequest, TResult>(endpoint, payload, "POST");
 	    var response = await _flurlClient.Request(result.Uri).PostStringAsync(result.RequestBody, cancellationToken).ConfigureAwait(false);
+	    await EnrichResult(result, response).ConfigureAwait(false);
+	    return result;
+    }
+
+    public async Task<ApiResponse<TResult>> PostStringAsync<TRequest, TResult>(string endpoint, TRequest stringPayload, CancellationToken cancellationToken = default)
+    {
+	    var result = GetResult<TRequest, TResult>(endpoint, stringPayload, "POST");
+	    var response = await _flurlClient.Request(result.Uri).PostStringAsync(stringPayload as string, cancellationToken).ConfigureAwait(false);
 	    await EnrichResult(result, response).ConfigureAwait(false);
 	    return result;
     }
