@@ -14,7 +14,8 @@
 
 
 using Xunit;
-using Flurl.Http;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace SearchPioneer.Weaviate.Client.IntegrationTests.Api.Schema;
 
@@ -27,38 +28,67 @@ public class SchemaTests : TestBase
 	{
 		Client.Schema.DeleteAllClasses();
 
-		//var flurlClient = new FlurlClient();
-		//var weaviateClient = new WeaviateClient(new Config("http", "localhost:8080"), flurlClient);
-		var createStatus = Client.Schema.CreateSchemaClassString(DogSchema);
+		ApiResponse<WeaviateClass>? createStatus = Client.Schema.CreateSchemaClassString(DogSchema);
 		Assert.True(createStatus.HttpStatusCode == 200);
 
-		var schema = Client.Schema.GetSchema();
+		ApiResponse<WeaviateSchema>? schema = Client.Schema.GetSchema();
 		Assert.True(schema.HttpStatusCode == 200);
 		Assert.Single(schema.Result.Classes);
 
-		// Convert sample images in C:\UnitySrc\private repos\weaviate-examples\nearest-neighbor-dog-search\flask-app\static\img to base64
-		const string path = @"C:\UnitySrc\private repos\weaviate-examples\nearest-neighbor-dog-search\flask-app\static\img"; // TODO: Iterate over these!!!
-		var filePath = $@"{path}\Australian-Shepherd.jpg";
-		var imageArray = System.IO.File.ReadAllBytes(filePath);
-		var base64ImageRepresentation = Convert.ToBase64String(imageArray);
+		// Convert sample images to base64
+        const string path =
+            @"C:\UnitySrc\private repos\weaviate-examples\nearest-neighbor-dog-search\flask-app\static\img";
 
-		var batch = Client.Batch.CreateObjects(new CreateObjectsBatchRequest(
-			new WeaviateObject
-			{
-				Class = "Dog",
-				Properties = new Dictionary<string, object>
-				{
-					{ "breed", "Australian Shepherd" },
-					{ "image", base64ImageRepresentation },
-					{ "filepath", filePath }
-				}
-			})
-			{
-				ConsistencyLevel = ConsistencyLevel.Quorum
-			});
-		Assert.True(batch.HttpStatusCode == 200);
-	}
+        // Iterate over all files in path
+		string[] files = Directory.GetFiles(path);
+        var requests = new List<WeaviateObject>();
+		foreach (string filePath in files)
+		{
+            var imageArray = File.ReadAllBytes(filePath);
+            var base64ImageRepresentation = Convert.ToBase64String(imageArray);
+			
+            var breed = Path.GetFileNameWithoutExtension(filePath).Replace("-", " ");
+			requests.Add(new WeaviateObject
+            {
+                Class = "Dog",
+                Properties = new Dictionary<string, object>
+                {
+                    { "breed", breed },
+                    { "image", base64ImageRepresentation },
+                    { "filepath", filePath }
+                }
+            });
+		}
+        ApiResponse<ObjectResponse[]>? batch = Client.Batch.CreateObjects(new CreateObjectsBatchRequest(requests.ToArray())
+        {
+            ConsistencyLevel = ConsistencyLevel.One
+        });
+        Assert.True(batch.HttpStatusCode == 200);
 
+		const string searchImagePath = @"C:\UnitySrc\private repos\weaviate-examples\nearest-neighbor-dog-search\flask-app\static\golden-doodle-puppy.jpg";
+        string searchImage = Convert.ToBase64String(File.ReadAllBytes(searchImagePath));
+        GraphGetRequest request = new ()
+        {
+            Class = "Dog", Limit = 2, 
+            Fields = new Field[] {"breed".AsField(), "image".AsField(), "filepath".AsField()}, 
+            NearImage = new NearImage {Image = searchImage}
+        };
+        ApiResponse<GraphResponse>? results = Client.Graph.Get(request);
+        string json = results.Result.Data["Get"]!["Dog"].ToString();
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        Dog[] dogs = JsonSerializer.Deserialize<Dog[]>(json, options);
+		Assert.True(dogs.Length == 2);
+        Assert.Multiple(
+            () => Assert.Contains(dogs, dog => dog.Breed == "Goldendoodle"),
+            () => Assert.Contains(dogs, dog => dog.Breed == "Golden Retriever"));
+    }
+
+    public class Dog
+    {
+        public string Breed { get; set; } = null!;
+        public string Image { get; set; } = null!;
+        public string Filepath { get; set; } = null!;
+    }
 	private const string DogSchema = @"
         {
            ""class"": ""Dog"",

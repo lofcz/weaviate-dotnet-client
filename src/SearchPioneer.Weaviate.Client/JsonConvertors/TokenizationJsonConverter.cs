@@ -22,12 +22,14 @@ internal class TokenizationJsonConverter : JsonConverter<Tokenization>
 {
     private const string Word = "word";
     private const string Field = "field";
+    private const string WhiteSpace = "whitespace";
 
     private static Tokenization FromString(string status) =>
 	    status switch
 	    {
 		    Word => Tokenization.Word,
 		    Field => Tokenization.Field,
+		    WhiteSpace => Tokenization.WhiteSpace,
 		    _ => throw new ArgumentOutOfRangeException(nameof(status))
 	    };
 
@@ -36,6 +38,7 @@ internal class TokenizationJsonConverter : JsonConverter<Tokenization>
 	    {
 		    Tokenization.Word => Word,
 		    Tokenization.Field => Field,
+            Tokenization.WhiteSpace => WhiteSpace,
 		    _ => throw new ArgumentOutOfRangeException(nameof(status))
 	    };
 

@@ -18,5 +18,6 @@ namespace SearchPioneer.Weaviate.Client;
 public enum Tokenization
 {
     Word,
-    Field
+    Field,
+    WhiteSpace
 }
