@@ -1,12 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net7.0;net7.0-windows</TargetFrameworks>
     <Title>Weaviate .NET client</Title>
-    <Description>.NET client for Weaviate</Description>
+    <Description>.NET client for Weaviate
+Fork of https://github.com/searchpioneer/weaviate-dotnet-client. Not for production use!</Description>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>annotations</Nullable>
     <LangVersion>latest</LangVersion>
     <IsPackable>True</IsPackable>
+    <PackageId>lofcz.forks.weaviate.client</PackageId>
   </PropertyGroup>
   <!-- TODO REMOVE -->
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -25,6 +27,7 @@
     <ItemGroup>
     <PackageReference Include="Flurl.Http.Signed" Version="3.2.4" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="System.Text.Json" Version="6.0.1" />
+    <PackageReference Include="System.Text.Json" Version="7.0.0" />
+    <PackageReference Update="Microsoft.NETFramework.ReferenceAssemblies.net461" Version="1.0.3" />
   </ItemGroup>
 </Project>
